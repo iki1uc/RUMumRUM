@@ -1,34 +1,122 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<title>2me – Mirror</title>
+<meta charset="utf-8">
+<title>RUMumRUM – Ereignishorizont</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
 <style>
-body{background:#000;color:#0f0;font-family:monospace;padding:20px;}
-pre{background:#111;padding:20px;border:1px solid #333;}
-input{background:#111;color:#0f0;border:1px solid #333;padding:6px;width:120px;}
-button{background:#111;color:#0f0;border:1px solid #333;padding:8px 16px;margin-left:10px;}
+  body{
+    margin:0;padding:2rem;
+    background:#000;color:#fff;
+    font-family:system-ui,sans-serif;
+    text-align:center;
+  }
+
+  .wrap{max-width:900px;margin:0 auto}
+
+  .title{font-size:40px;margin-bottom:18px}
+
+  .nc6 {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .nc-line {
+    padding: 10px 14px;
+    background: #0b0b0b;
+    border: 1px solid #222;
+    font-size: 18px;
+    color: #7dd3fc;
+    font-family: system-ui, sans-serif;
+  }
+
+  /* Orbit Animation */
+  .orbit-canvas {
+    margin:20px auto;
+    animation: orbitSpin 4s linear infinite;
+  }
+
+  @keyframes orbitSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .orbit-run {
+    border-color:#7dd3fc;
+    animation: orbitPulse 1.2s infinite alternate;
+  }
+
+  @keyframes orbitPulse {
+    from { background:#0b0b0b; }
+    to   { background:#112233; }
+  }
 </style>
 </head>
 
 <body>
 
-<h1>2me – Mirror</h1>
+<div class="wrap">
+  <div class="title">RUMumRUM – Ereignishorizont</div>
 
-<p>Input:</p>
-<input id="inp" type="text" value="iki1uc">
-<button onclick="run2me()">RUN</button>
+  <!-- NC‑6‑Fach‑Block -->
+  <div id="nc6" class="nc6"></div>
 
-<pre id="out">Bereit...</pre>
+  <!-- Orbit Canvas -->
+  <canvas id="orbitCanvas" width="240" height="240" class="orbit-canvas"></canvas>
+</div>
 
 <script type="module">
-import { twoMe } from "./twoMe.js";
+  import { NC6 } from "./VECTOR.js";
 
-function run2me(){
-  const x = inp.value;
-  out.textContent = twoMe(x);
-}
+  /* NC6 Layer Rendering */
+  const nc6Box = document.getElementById("nc6");
+
+  Object.entries(NC6).forEach(([key, layer]) => {
+    const div = document.createElement("div");
+    div.className = "nc-line";
+    div.dataset.layer = key;
+    div.textContent = `${layer.id} Layer ${key} — ${layer.name}`;
+
+    if (key === "5") div.classList.add("orbit-run");
+
+    nc6Box.appendChild(div);
+  });
+
+  /* Orbit Canvas Engine */
+  function startOrbitCanvas() {
+    const canvas = document.getElementById("orbitCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let t = 0;
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const r = 60 + Math.sin(t) * 10;
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = "#7dd3fc";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.fillStyle = "#7dd3fc";
+      ctx.font = "24px system-ui";
+      ctx.fillText(NC6[5].id, cx - 10, cy + 10);
+
+      t += 0.03;
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+  }
+
+  startOrbitCanvas();
 </script>
 
 </body>
